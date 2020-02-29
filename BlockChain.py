@@ -60,15 +60,15 @@ class BlockChain(object):
     # マイニングの報酬でもらえる通貨は送り主(sender)がいないためあらかじめ決めておく
     MINING_SENDER = 'THIS IS MINING SENDER'
     # マイニングの報酬を決めておく
-    MINING_REWAES = 1
+    MINING_REWARD = 1
     # マイニングのメソッド
 
     def mining(self):
             # マイニングで得られた報酬も一応取引なので未承認の取引リストに追加する
         self.add_transaction(
-            sender_blockchain_address=MINING_SENDER,
+            sender_blockchain_address=self.MINING_SENDER,
             recipient_blockchain_address=self.blockchain_address,
-            value=MINING_REWARD)
+            value=self.MINING_REWARD)
         nonce = self.proof_of_work()
         previous_hash = self.hash(self.chain[-1])  # 一つ前のブロックをハッシュ化
         # ナンスと前のブロックのハッシュ値を用いてブロックを作る
