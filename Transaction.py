@@ -1,26 +1,18 @@
-class Transaction(object):
+import GenAddress
+import hashlib
+import ecdsa
 
-    def __init__(self, sender_private_key, sender_public_key, sender_blockchain_address, recipient_blockchain_address, value):
-        self.sender_private_key = sender_private_key
-        self.sender_public_key = sender_public_key
-        self.sender_blockchain_address = sender_blockchain_address
-        self.recipient_blockchain_address = recipient_blockchain_address
-        self.value = value
 
-    def generate_signature(self):
-        sha256 = hashlib.sha256() #sha256を使う
-        #トランザクションを作る
-        transaction ={
-            'sender_blockchain_address': self.sender_blockchain_address,
-            'recipient_blockchain_address': self.recipient_blockchain_address,
-            'value': float(self.value)
-        }
+class VerifyTransaction(object):
+
+    def generate_signature(self, sender_private_key, transaction):
+        sha256 = hashlib.sha256()
         sha256.update(str(transaction).encode('utf-8'))
         message = sha256.digest()
-        private_key = SigningKey.from_string(
-            bytes().fromhex(self.sender_private_key), curve=NIST256p)
+        private_key = ecdsa.SigningKey.from_string(
+            bytes().fromhex(sender_private_key), curve=ecdsa.SECP256k1)
         private_key_sign = private_key.sign(message)
-        signature= private_key_sign.hex()
+        signature = private_key_sign.hex()
 
         return signature
 
@@ -29,7 +21,24 @@ class Transaction(object):
         sha256.update(str(transaction).encode('utf-8'))
         message = sha256.digest()
         signature_bytes = bytes().fromhex(signature)
-        verifying_key = VerifyingKey.from_string(
-            bytes().fromhex(sender_public_key), curve=NIST256p)
+        verifying_key = ecdsa.VerifyingKey.from_string(
+            bytes().fromhex(sender_public_key), curve=ecdsa.SECP256k1)
         verified_key = verifying_key.verify(signature_bytes, message)
         return verified_key
+
+
+if __name__ == '__main__':
+    sender = GenAddress.GenAddress()
+    receiver = GenAddress.GenAddress()
+
+    transaction = {
+        'sender_blockchain_address': sender.address,
+        'recipient_blockchain_address': receiver.address,
+        'value': float(10)
+    }
+
+    verifyTransaction = VerifyTransaction()
+    signature = verifyTransaction.generate_signature(sender.privkey, transaction)
+    print("signature = "+signature)
+
+    print(verifyTransaction.verify_transaction_signature(sender.pubkey,signature,transaction))
