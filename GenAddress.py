@@ -7,14 +7,14 @@ import base58
 class GenAddress(object):
     def __init__(self):
         p = 2**256 - 2**32 - 2**9 - 2**8 - 2**7 - 2**6 - 2**4 - 1
-        privkey = self.new_privkey(p)
-        pubkey = self.new_pubkey(privkey)
-        address = self.new_address(bytes.fromhex("00"), pubkey)
+        self.privkey = self.new_privkey(p)
+        self.pubkey = self.new_pubkey(self.privkey)
+        self.address = self.new_address(bytes.fromhex("00"), self.pubkey)
 
     def new_privkey(self, p):
         privkey = secrets.randbelow(p)
         privkey = format(privkey, 'x')
-        print("PrivateKey = " + privkey)
+        # print("PrivateKey = " + privkey)
         return privkey
 
     def new_pubkey(self, privkey):
@@ -24,7 +24,7 @@ class GenAddress(object):
         verifying_key = signing_key.get_verifying_key()
         pubkey = bytes.fromhex("04") + verifying_key.to_string()
         pubkey = pubkey.hex()
-        print("PublicKey = " + pubkey)
+        # print("PublicKey = " + pubkey)
         return pubkey
 
     def new_address(self, version, pubkey):
@@ -41,7 +41,7 @@ class GenAddress(object):
         address = pre_address + checksum
         address = base58.b58encode(address)
         address = address.decode()
-        print("Address = " + address + "\n")
+        # print("Address = " + address + "\n")
         return address
 
 if __name__ == '__main__':
