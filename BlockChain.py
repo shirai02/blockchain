@@ -5,11 +5,10 @@ import time
 
 class BlockChain(object):
 
-    def __init__(self, blockchain_address=None):
+    def __init__(self):
         self.transaction_pool = []
         self.chain = []
         self.create_block(0, self.hash({}))
-        self.blockchain_address = blockchain_address
 
     def create_block(self, nonce, previous_hash):
         block = {
@@ -63,11 +62,11 @@ class BlockChain(object):
     MINING_REWARD = 1
     # マイニングのメソッド
 
-    def mining(self):
+    def mining(self, minor_address):
             # マイニングで得られた報酬も一応取引なので未承認の取引リストに追加する
         self.add_transaction(
             sender_blockchain_address=self.MINING_SENDER,
-            recipient_blockchain_address=self.blockchain_address,
+            recipient_blockchain_address=minor_address,
             value=self.MINING_REWARD)
         nonce = self.proof_of_work()
         previous_hash = self.hash(self.chain[-1])  # 一つ前のブロックをハッシュ化
