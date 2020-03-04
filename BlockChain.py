@@ -1,6 +1,8 @@
 import hashlib
 import json
 import time
+import pprint
+import Transaction
 
 
 class BlockChain(object):
@@ -25,15 +27,16 @@ class BlockChain(object):
     def hash(self, block):
         return hashlib.sha256(json.dumps(block).encode()).hexdigest()
 
-    def add_transaction(self, sender_blockchain_address, recipient_blockchain_address, value, sender_public_key=None):
-        transaction = {
-            'sender_blockchain_address': sender_blockchain_address,
-            'recipient_blockchain_address': recipient_blockchain_address,
-            'value': float(value)
-        }
-        self.transaction_pool.append(transaction)
-
-        return True
+    def add_transaction(self, transaction, signature, sender_public_key):
+        if Transaction.VerifyTransaction().verify_transaction_signature(sender_public_key, signature, transaction):
+            # print("verified transaction : ")
+            # pprint.pprint(transaction)
+            self.transaction_pool.append(transaction)
+            return True
+        else:
+            print("unverified transaction : ")
+            pprint.pprint(transaction)
+            return False
 
     # 決められた値になっているかどうか検証するメソッド
     def valid_proof(self, transactions, previous_hash, nonce,):
@@ -63,11 +66,12 @@ class BlockChain(object):
     # マイニングのメソッド
 
     def mining(self, minor_address):
-            # マイニングで得られた報酬も一応取引なので未承認の取引リストに追加する
-        self.add_transaction(
-            sender_blockchain_address=self.MINING_SENDER,
-            recipient_blockchain_address=minor_address,
-            value=self.MINING_REWARD)
+        # マイニングで得られた報酬も一応取引なので未承認の取引リストに追加する
+        self.transaction_pool.append({
+            'sender_blockchain_address': self.MINING_SENDER,
+            'recipient_blockchain_address': minor_address,
+            'value': float(self.MINING_REWARD)
+        })
         nonce = self.proof_of_work()
         previous_hash = self.hash(self.chain[-1])  # 一つ前のブロックをハッシュ化
         # ナンスと前のブロックのハッシュ値を用いてブロックを作る
