@@ -13,7 +13,6 @@ class VerifyTransaction(object):
             bytes().fromhex(sender_private_key), curve=ecdsa.SECP256k1)
         private_key_sign = private_key.sign(message)
         signature = private_key_sign.hex()
-
         return signature
 
     def verify_transaction_signature(self, sender_public_key, signature, transaction):
